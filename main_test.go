@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	inputFile  = "./testdata/test1.md"
-	goldenFile = "./testdata/test1.md.html"
+	inputFile      = "./testdata/test1.md"
+	goldenFile     = "./testdata/test1.md.html"
+	templateFile   = "./testdata/test2-template.html"
+	templateOutput = "./testdata/test2.md.html"
 )
 
 func TestParseContent(t *testing.T) {
@@ -18,9 +20,35 @@ func TestParseContent(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	result := parseContent(input)
+	result, err := parseContent(input, "")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	expected, err := os.ReadFile(goldenFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(expected, result) {
+		t.Logf("golden:\n%s\n", expected)
+		t.Logf("result:\n%s\n", result)
+		t.Error("Result content does not match golden file")
+	}
+}
+
+func TestParseContentWithTemplate(t *testing.T) {
+	input, err := os.ReadFile(inputFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := parseContent(input, templateFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected, err := os.ReadFile(templateOutput)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,7 +63,7 @@ func TestParseContent(t *testing.T) {
 func TestRun(t *testing.T) {
 	var mockStdOut bytes.Buffer
 
-	if err := run(inputFile, &mockStdOut, true); err != nil {
+	if err := run(inputFile, "", &mockStdOut, true); err != nil {
 		t.Fatal(err)
 	}
 
