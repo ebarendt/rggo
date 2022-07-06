@@ -1,3 +1,3 @@
 module pragprog.com/rggo/fileSystem/walk
 
-go 1.17
+go 1.18
